@@ -1,31 +1,62 @@
 <script setup>
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { Back } from '@element-plus/icons-vue'
+import { ROUTES_PATHS } from '@/constants'
+
 const props = defineProps({
   imgUrl: {
     type: String,
     required: true
   },
   backFunc: {
-    type: Function,
-    required: true
+    type: Function
+  },
+  isBackButtonVisible: {
+    type: Boolean,
+    default: true
   }
 })
+
+const route = useRoute()
+const router = useRouter()
+
+const routeName = computed(() => route.name)
+
+function goForCocktailRandom() {
+  router.push(ROUTES_PATHS.COCKTAIL_RANDOM)
+
+  if (routeName.value === ROUTES_PATHS.COCKTAIL_RANDOM) {
+    router.go(-1)
+  }
+}
+
+function goBack() {
+  props.backFunc ? props.backFunc() : router.go(-1)
+}
 </script>
 
 <template>
   <div class="root">
-    <div :style="`background-image: url(${imgUrl})`" class="img" />
+    <div :style="`background-image: url(${imgUrl})`" class="img"></div>
     <div class="main">
       <div class="btns">
-        <el-button type="primary" :icon="Back" circle class="back" @click="backFunc" />
-        <el-button class="button">Get random cocktail</el-button>
+        <el-button
+          v-if="isBackButtonVisible"
+          type="primary"
+          :icon="Back"
+          circle
+          class="back"
+          @click="goBack"
+        />
+        <el-button class="btn" @click="goForCocktailRandom">Get random cocktail</el-button>
       </div>
       <slot></slot>
     </div>
   </div>
 </template>
 
-<style scoped lang="sass">
+<style lang="sass" scoped>
 @import '../assets/styles/main'
 
 .root
@@ -44,7 +75,7 @@ const props = defineProps({
   width: 50%
   padding: 32px 40px
 
-.button
+.btn
   position: absolute
   top: 32px
   right: 40px
@@ -56,8 +87,8 @@ const props = defineProps({
 
   &:hover,
   &:active
-    background-color: darken($accent, 20%)
-    border-color: darken($accent, 20%)
+    background-color: darken($accent, 10%)
+    border-color: darken($accent, 10%)
 
 .btns
   display: flex
@@ -69,6 +100,6 @@ const props = defineProps({
   border-color: $text
 
   &:hover
-    color: $accent
     border-color: $accent
+    color: $accent
 </style>
